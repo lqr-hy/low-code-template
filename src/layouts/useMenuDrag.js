@@ -1,3 +1,5 @@
+import { events } from "./events"
+
 export function useMenuDrag (containerRef, data) {
   let currentComponent = null
   const dragenter = (e) => {
@@ -33,12 +35,14 @@ export function useMenuDrag (containerRef, data) {
     containerRef.value.addEventListener('dragleave', dragleave)
     containerRef.value.addEventListener('drop', drop)
     currentComponent = component
+    events.emit('start') // 抛出移动 start 事件 
   }
   const dragend = () => {
     containerRef.value.removeEventListener('dragenter', dragenter)
     containerRef.value.removeEventListener('dragover', dragover)
     containerRef.value.removeEventListener('dragleave', dragleave)
     containerRef.value.removeEventListener('drop', drop)
+    events.emit('end') // 抛出拖动结束事件
   }
   return {
     dragstart,

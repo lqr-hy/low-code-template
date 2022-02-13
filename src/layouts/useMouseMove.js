@@ -1,11 +1,13 @@
 import { reactive } from "vue"
+import { events } from "./events"
 
 export function useMouseMove (focusData, lastSelectBlock, data) {
   let dragState = {
     stateY: 0,
     stateX: 0,
     stateLeft: null,
-    stateTop: null
+    stateTop: null,
+    dragging: false // 表示还未拖拽
   }
 
   let markLine = reactive({
@@ -20,6 +22,7 @@ export function useMouseMove (focusData, lastSelectBlock, data) {
     dragState = {
       stateX: e.clientX,
       stateY: e.clientY, // 记录每一个选中的位置
+      dragging: false,
       stateLeft: lastSelectBlock.value.left,
       stateTop: lastSelectBlock.value.top,
       statePro: focusData.value.focus.map(({ top, left }) => ({ top, left })),
@@ -53,6 +56,12 @@ export function useMouseMove (focusData, lastSelectBlock, data) {
   //  计算移动的位置
   const mouseMove = (e) => {
     let { clientX: moveX, clientY: moveY } = e
+
+    if (!dragState.dragging) {
+      dragState.dragging = true
+      events.emit('start') // 移动的时候记录位置
+    }
+
     // console.log(clientX)
     // 计算出距离container 容器位置
     let left = moveX - dragState.stateX + dragState.stateLeft
@@ -99,6 +108,9 @@ export function useMouseMove (focusData, lastSelectBlock, data) {
     document.removeEventListener('mouseup', mouseUp)
     markLine.x = null
     markLine.y = null
+    if (dragState.dragging) {
+      events.emit('end')
+    }
   }
 
   return {

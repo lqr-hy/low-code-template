@@ -5,6 +5,7 @@ import EditorPreview from './editor-preview'
 import deepcopy from 'deepcopy'
 import { useMouseDown } from './useMouseDown'
 import { useMouseMove } from './useMouseMove'
+import { useCommand } from './useCommand'
 
 export default defineComponent({
   props: {
@@ -36,17 +37,19 @@ export default defineComponent({
     // 移动   
     const { mouseDown, markLine } = useMouseMove(focusData, lastSelectBlock, data)
 
+    const { commands } = useCommand(data)
+
     // 菜单栏
     const buttons = [
       {
         label: '撤销',
         icon: 'icon-back',
-        handler: () => console.log('撤销')
+        handler: () => commands.undo()
       },
       {
-        label: '重置',
-        icon: 'icon-reset',
-        handler: () => console.log('重置')
+        label: '前进',
+        icon: 'icon-forward',
+        handler: () => commands.redo()
       }
     ]
 
@@ -59,7 +62,7 @@ export default defineComponent({
         <div class='editor-top'>
           {
             buttons.map((button) => {
-              return <div class='icon-' onClick={button.handler}>
+              return <div class='editor-top-button' onClick={button.handler}>
                 <i class={button.icon}></i>
                 <span>{button.label}</span>
               </div>
